@@ -36,7 +36,7 @@ module BaiduCloudPush
     # Basic API
     #
     def self.push_single channel_id, msg, msg_type = 1
-      params = {msg_type: msg_type, msg: msg.to_json}
+      params = {msg_type: msg_type, msg: msg.to_json, channel_id: channel_id}
       resource = RESOURCE[:push_single]
       api_uri = "http://#{API_HOST}/#{resource}"
 
