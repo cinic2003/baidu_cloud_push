@@ -18,6 +18,9 @@ module BaiduCloudPush
       api_version: '3.0'
     }
     API_HOST = "api.tuisong.baidu.com/rest/#{DEFAULT_OPTIONS[:api_version]}"
+    CONF = YAML.load_file("#{Rails.root}/config/baidu.yml")[Rails.env]
+    APIKEY = CONF['apikey']
+    SECRET = CONF['secret']
 
     attr_reader :api_key, :secret_key, :resource, :api_uri, :request_method, :options 
     attr_accessor :resource
@@ -32,6 +35,21 @@ module BaiduCloudPush
     ###################################################
     # Basic API
     #
+    def self.push_single channel_id, msg, msg_type = 1
+      params = {msg_type: msg_type, msg: msg.to_json}
+      resource = RESOURCE[:push_single]
+      api_uri = "http://#{API_HOST}/#{resource}"
+
+      params.merge!({apikey: APIKEY, timestamp: Time.now.to_i})
+      params.merge!({sign: Client.generate_sign(api_uri, params)})
+      uri = URI(api_uri)
+      req = Net::HTTP::Post.new(uri)
+      req.set_form_data(params)
+      req['Content-Type'] = "application/x-www-form-urlencoded;charset=utf-8"
+      req['User-Agent'] = "BCCS_SDK/3.0 (Linux version 3.13.0-45-generic) Ruby/2.2 (Baidu Push Server SDK V3.0.0)"
+      Net::HTTP.start(uri.host, uri.port){|http| http.request(req)}
+    end
+
 
     def push_all msg: '', msg_type: 1
       set_resource RESOURCE[:push_all]
@@ -105,6 +123,13 @@ module BaiduCloudPush
     end
 
     private
+
+    def self.generate_sign api_uri, params
+      params_str = params.sort.map{ |p| p.join('=') }.join
+      base_str = "#{REQUEST_METHOD.to_s.upcase}#{api_uri}#{params_str}#{SECRET}"
+      Digest::MD5.hexdigest(URI::encode_www_form_component(base_str))
+    end
+
     def set_api_uri
       @request_method = REQUEST_METHOD
       scheme = @options[:use_ssl] ? 'https' : 'http'
