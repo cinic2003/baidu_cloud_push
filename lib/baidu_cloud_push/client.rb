@@ -35,8 +35,8 @@ module BaiduCloudPush
     ###################################################
     # Basic API
     #
-    def self.push_single channel_id, msg, msg_type = 1
-      params = {msg_type: msg_type, msg: msg.to_json, channel_id: channel_id}
+    def self.push_single channel_id, message, msg_type = 1
+      params = {msg_type: msg_type, msg: message.to_json, channel_id: channel_id}
       resource = RESOURCE[:push_single]
       api_uri = "http://#{API_HOST}/#{resource}"
 
@@ -51,31 +51,31 @@ module BaiduCloudPush
     end
 
 
-    def push_all msg: '', msg_type: 1
+    def push_all message: '', msg_type: 1
       set_resource RESOURCE[:push_all]
-      params = {msg_type: msg_type, msg: msg.to_json} #, timestamp: Time.now.to_i, apikey: @api_key}
+      params = {msg_type: msg_type, msg: message.to_json} #, timestamp: Time.now.to_i, apikey: @api_key}
 
       @api_uri = set_api_uri
       @request.fetch params
     end
 
-    def push_single msg: '', channel_id: '', msg_type: 1
+    def push_single message: '', channel_id: '', msg_type: 1
       set_resource RESOURCE[:push_single]
-      params = {msg_type: msg_type, msg: msg.to_json, channel_id: channel_id} #, timestamp: Time.now.to_i}
+      params = {msg_type: msg_type, msg: message.to_json, channel_id: channel_id} #, timestamp: Time.now.to_i}
       @api_uri = set_api_uri
       @request.fetch params
     end
 
-    def push_batch msg: '', channel_ids: [], msg_type: 1
+    def push_batch message: '', channel_ids: [], msg_type: 1
       set_resource RESOURCE[:push_batch]
-      params = {msg_type: msg_type, msg: msg.to_json, channel_ids: channel_ids.to_json}
+      params = {msg_type: msg_type, msg: message.to_json, channel_ids: channel_ids.to_json}
       @api_uri = set_api_uri
       @request.fetch params
     end
 
-    def push_tags type: 1, tag: '', msg: msg
+    def push_tags type: 1, tag: '', message: ''
       set_resource RESOURCE[:push_tags]
-      params = {type: type, msg: msg.to_json, tag: tag}
+      params = {type: type, msg: message.to_json, tag: tag}
       @api_uri = set_api_uri
       @request.fetch params
     end
